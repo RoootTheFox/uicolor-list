@@ -1,0 +1,8 @@
+Package: gay.rooot.uicolors
+Name: uicolors
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: bad app to show all uicolors ever :fr:
+Maintainer: rooot
+Author: rooot
+Section: Utilities
