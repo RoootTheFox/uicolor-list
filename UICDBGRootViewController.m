@@ -16,6 +16,15 @@
 - (void)loadView {
 	[super loadView];
 
+	NSArray *blacklist = @[
+		@"writableTypeIdentifiersForItemProvider",
+		@"classFallbacksForKeyedArchiver",
+		@"readableTypeIdentifiersForItemProvider",
+		@"_apiColorNames",
+		@"_systemColorSelectorTable",
+	];
+
+
 	_objects = [NSMutableArray array];
 
 	unsigned int count;
@@ -25,13 +34,22 @@
 		Method method = methods[i];
 		const char* method_type = method_getTypeEncoding(method);
 
+
 		// this filters for the methods we want
 		if (strcmp(method_type, "@16@0:8") == 0) {
 			NSLog(@"meow -> found method %s, type %s", sel_getName(method_getName(method)), method_type);
 
-			[_objects addObject: [NSString stringWithUTF8String:sel_getName(method_getName(method))]];
+			NSString* method_str = [NSString stringWithUTF8String:sel_getName(method_getName(method))];
+			if ([blacklist containsObject:method_str]) {
+				NSLog(@"meow -> skipped method %s, type %s", sel_getName(method_getName(method)), method_type);
+				continue;
+			}
+
+			[_objects addObject: method_str];
 		}
 	}
+
+	NSLog(@"meow -> total colors found %lu", _objects.count);
 
 	self.title = @"UIColor color list";
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(bgToggleButtonTapped:)];
@@ -58,8 +76,10 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *CellIdentifier = @"Cell";
+	NSString *CellIdentifier = _objects[indexPath.row];
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+
+	NSLog(@"meow => indexPath %@ indexRow %lu colorName %@", indexPath, indexPath.row, _objects[indexPath.row]);
 
 	if (!cell) {
 		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
