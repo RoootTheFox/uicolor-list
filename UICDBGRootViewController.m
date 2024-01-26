@@ -52,17 +52,6 @@
 	NSLog(@"meow -> total colors found %lu", _objects.count);
 
 	self.title = @"UIColor color list";
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(bgToggleButtonTapped:)];
-
-	self.view.backgroundColor = [UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
-}
-
-- (void)bgToggleButtonTapped:(id)sender {
-	if ([self.tableView.backgroundColor isEqualToColor: [UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0]]) {
-		self.tableView.backgroundColor = [UIColor colorWithRed: 1.0 green: 1.0 blue: 1.0 alpha: 1.0];
-	} else {
-		self.tableView.backgroundColor = [UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
-	}
 }
 
 #pragma mark - Table View Data Source
@@ -86,9 +75,14 @@
 		NSString *colorName = _objects[indexPath.row];
 		UIColor *color = [UIColor performSelector:NSSelectorFromString(colorName)];
 
+		UIColorWell *well = [[UIColorWell alloc] initWithFrame:CGRectMake(0.0, 0.0, 1.0, 1.0)];
+		well.selectedColor = color;
+		well.title = colorName;
+		well.supportsAlpha = YES;
+		well.center = cell.accessoryView.center;
+
+		cell.accessoryView = well;
 		cell.textLabel.text = colorName;
-		cell.textLabel.textColor = color;
-		cell.backgroundColor = [UIColor clearColor];
 	}
 
 	return cell;
@@ -97,6 +91,20 @@
 #pragma mark - Table View Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	UIColor *color = [UIColor performSelector:NSSelectorFromString(_objects[indexPath.row])];
+	CIColor *cicolor = [CIColor colorWithCGColor:color.CGColor];
+	NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X%02X",
+		 (int)(cicolor.red*255),
+		 (int)(cicolor.green*255),
+		 (int)(cicolor.blue*255),
+		 (int)(cicolor.alpha*255)
+	];
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:_objects[indexPath.row] 
+								       message:hexString
+								preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {}];
+	[alert addAction:action];
+	[self presentViewController:alert animated:YES completion:nil];
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
