@@ -75,7 +75,7 @@
 		NSString *colorName = _objects[indexPath.row];
 		UIColor *color = [UIColor performSelector:NSSelectorFromString(colorName)];
 
-		UIColorWell *well = [[UIColorWell alloc] initWithFrame:CGRectMake(0.0, 0.0, 1.0, 1.0)];
+		UIColorWell *well = [[UIColorWell alloc] initWithFrame:CGRectMake(0.0, 0.0, 36.0, 36.0)];
 		well.selectedColor = color;
 		well.title = colorName;
 		well.supportsAlpha = YES;
